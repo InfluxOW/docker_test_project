@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      args:
+        user: influx
+        uid: 666
+      context: ./api
+      dockerfile: Dockerfile
+    volumes:
+      - ./api:/app
+    ports:
+      - "8000:8000"
+    stdin_open: true
+    tty: true
+    env_file:
+      - ./api/.env
