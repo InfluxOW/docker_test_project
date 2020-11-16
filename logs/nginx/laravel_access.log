@@ -1,0 +1,2 @@
+172.31.0.1 - - [16/Nov/2020:14:29:47 +0000] "GET /api/test HTTP/1.1" 200 44 "-" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:82.0) Gecko/20100101 Firefox/82.0"
+172.31.0.1 - - [16/Nov/2020:14:29:48 +0000] "GET /favicon.ico HTTP/1.1" 200 0 "http://laravel-docker.test/api/test" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:82.0) Gecko/20100101 Firefox/82.0"

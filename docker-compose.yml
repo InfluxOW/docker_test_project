@@ -9,10 +9,26 @@ services:
       context: ./api
       dockerfile: Dockerfile
     volumes:
-      - ./api:/app
+      - ./api:/var/www
+    container_name: another_docker_project-api
+    restart: unless-stopped
+    working_dir: /var/www/
+
+  nginx:
+    build:
+      context: ./nginx
+      args:
+        - CHANGE_SOURCE=false
+        - PHP_UPSTREAM_CONTAINER=api
+        - PHP_UPSTREAM_PORT=9000
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    volumes:
+      - ./api:/var/www
+      - ./logs/nginx/:/var/log/nginx
+      - ./nginx/sites/:/etc/nginx/sites-available
     ports:
-      - "8000:8000"
-    stdin_open: true
-    tty: true
-    env_file:
-      - ./api/.env
+      - "80:80"
+      - "443:443"
+      - "81:81"
