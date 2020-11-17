@@ -4,8 +4,8 @@ services:
   api:
     build:
       args:
-        user: influx
-        uid: 666
+        - API_USER_USERNAME=${API_USER_USERNAME}
+        - API_USER_UID=${API_USER_UID}
       context: ./api
       dockerfile: Dockerfile
     volumes:
@@ -18,17 +18,16 @@ services:
     build:
       context: ./nginx
       args:
-        - CHANGE_SOURCE=false
-        - PHP_UPSTREAM_CONTAINER=api
-        - PHP_UPSTREAM_PORT=9000
+        - CHANGE_SOURCE=${CHANGE_SOURCE}
+        - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+        - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
         - http_proxy
         - https_proxy
         - no_proxy
     volumes:
-      - ./api:/var/www
-      - ./logs/nginx/:/var/log/nginx
-      - ./nginx/sites/:/etc/nginx/sites-available
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+      - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+      - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
     ports:
-      - "80:80"
-      - "443:443"
-      - "81:81"
+      - "${NGINX_HOST_HTTP_PORT}:80"
+      - "${NGINX_HOST_HTTPS_PORT}:443"
