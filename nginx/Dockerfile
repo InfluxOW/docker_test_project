@@ -1,4 +1,5 @@
-FROM nginx:alpine
+ARG NGINX_VERSION=alpine
+FROM nginx:${NGINX_VERSION}
 
 LABEL maintainer="Mahmoud Zalt <mahmoud@zalt.me>"
 
