@@ -1,19 +1,20 @@
 version: '3.8'
 
 services:
+  ### API ###########################################
   api:
     build:
       args:
         - API_USER_USERNAME=${API_USER_USERNAME}
         - API_USER_UID=${API_USER_UID}
       context: ./api
-      dockerfile: Dockerfile
     volumes:
       - ./api:/var/www
-    container_name: another_docker_project-api
-    restart: unless-stopped
     working_dir: /var/www/
+    depends_on:
+      - postgres
 
+  ### Nginx ###########################################
   nginx:
     build:
       context: ./nginx
@@ -31,3 +32,19 @@ services:
     ports:
       - "${NGINX_HOST_HTTP_PORT}:80"
       - "${NGINX_HOST_HTTPS_PORT}:443"
+
+  ### PostgreSQL ###########################################
+  postgres:
+    build:
+      context: ./postgres
+      args:
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
+    volumes:
+      - ${DATA_PATH_HOST}/postgres:/var/lib/postgresql/data
+      - ${POSTGRES_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
