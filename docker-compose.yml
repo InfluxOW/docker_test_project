@@ -14,6 +14,7 @@ services:
       - ${PHP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
+      - static-content:/usr/share/nginx/html
     ports:
       - "${NGINX_HOST_HTTP_PORT}:80"
       - "${NGINX_HOST_HTTPS_PORT}:443"
@@ -72,3 +73,17 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     restart: unless-stopped
     container_name: docker_test_project-postgres_auth
+
+  frontend:
+    build:
+      context: ./app/frontend
+      args:
+        - NODE_VERSION=${NODE_VERSION}
+    tty: true
+    stdin_open: true
+    volumes:
+      - static-content:/app/dist
+    container_name: docker_test_project-frontend
+
+volumes:
+  static-content:
