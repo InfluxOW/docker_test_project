@@ -14,7 +14,7 @@ services:
       - ${PHP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
-      - static-content:/usr/share/nginx/html
+      - frontend-auth-static-content:/usr/share/nginx/html/auth
     ports:
       - "${NGINX_HOST_HTTP_PORT}:80"
       - "${NGINX_HOST_HTTPS_PORT}:443"
@@ -77,13 +77,14 @@ services:
   frontend:
     build:
       context: ./app/frontend
+      dockerfile: prod.Dockerfile
       args:
         - NODE_VERSION=${NODE_VERSION}
     tty: true
     stdin_open: true
     volumes:
-      - static-content:/app/dist
+      - frontend-auth-static-content:/app/auth/dist
     container_name: docker_test_project-frontend
 
 volumes:
-  static-content:
+  frontend-auth-static-content:
