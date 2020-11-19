@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+### Nginx ###########################################
+  nginx:
+    build:
+      context: server/nginx
+      args:
+        - NGINX_VERSION=${NGINX_VERSION}
+        - CHANGE_SOURCE=${CHANGE_SOURCE}
+        - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+        - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+    volumes:
+      - ${PHP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+      - ${NGINX_SITES_PATH}/dev:/etc/nginx/sites-available
+    ports:
+      - "${NGINX_HOST_HTTP_PORT}:80"
+      - "${NGINX_HOST_HTTPS_PORT}:443"
+    restart: unless-stopped
+    container_name: docker_test_project-nginx
+    depends_on:
+      - frontend
+      - php-fpm
+
+### PHP-FPM ##############################################
+  php-fpm:
+    build:
+      context: ./server/php-fpm
+      args:
+        - SYSTEM_USER_USERNAME=${SYSTEM_USER_USERNAME}
+        - SYSTEM_USER_UID=${SYSTEM_USER_UID}
+        - PHP_VERSION=${PHP_VERSION}
+    volumes:
+      - ${PHP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+    restart: unless-stopped
+    container_name: docker_test_project-php-fpm
+    depends_on:
+      - postgres_api
+      - postgres_auth
+
+### PostgreSQL for API ###########################################
+  postgres_api:
+    build:
+      context: db/postgres_api
+      args:
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
+    volumes:
+      - ${DATA_PATH_HOST}/postgres_api:/var/lib/postgresql/data
+      - ${POSTGRES_API_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+    ports:
+      - "${POSTGRES_API_PORT}:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    restart: unless-stopped
+    container_name: docker_test_project-postgres_api
+
+### PostgreSQL for Auth ###########################################
+  postgres_auth:
+    build:
+      context: db/postgres_auth
+      args:
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
+    volumes:
+      - ${DATA_PATH_HOST}/postgres_auth:/var/lib/postgresql/data
+      - ${POSTGRES_AUTH_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+    ports:
+      - "${POSTGRES_AUTH_PORT}:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    restart: unless-stopped
+    container_name: docker_test_project-postgres_auth
+
+  frontend:
+    build:
+      context: ./app/frontend
+      dockerfile: dev.Dockerfile
+      args:
+        - NODE_VERSION=${NODE_VERSION}
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./app/frontend/auth:/app/auth
+      - /app/auth/node_modules
+    container_name: docker_test_project-frontend
+    ports:
+    - "8080:80"

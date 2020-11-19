@@ -13,13 +13,16 @@ services:
     volumes:
       - ${PHP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
-      - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
-      - frontend-auth-static-content:/usr/share/nginx/html/auth
+      - ${NGINX_SITES_PATH}/prod:/etc/nginx/sites-available
+      - auth-frontend-static-content:/usr/share/nginx/html
     ports:
       - "${NGINX_HOST_HTTP_PORT}:80"
       - "${NGINX_HOST_HTTPS_PORT}:443"
     restart: unless-stopped
     container_name: docker_test_project-nginx
+    depends_on:
+      - frontend
+      - php-fpm
 
 ### PHP-FPM ##############################################
   php-fpm:
@@ -34,7 +37,6 @@ services:
     restart: unless-stopped
     container_name: docker_test_project-php-fpm
     depends_on:
-      - nginx
       - postgres_api
       - postgres_auth
 
@@ -83,8 +85,8 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - frontend-auth-static-content:/app/auth/dist
+      - auth-frontend-static-content:/app/dist
     container_name: docker_test_project-frontend
 
 volumes:
-  frontend-auth-static-content:
+  auth-frontend-static-content:
