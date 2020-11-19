@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  ### Nginx ###########################################
+### Nginx ###########################################
   nginx:
     build:
       context: server/nginx
@@ -10,9 +10,6 @@ services:
         - CHANGE_SOURCE=${CHANGE_SOURCE}
         - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
         - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
-        - http_proxy
-        - https_proxy
-        - no_proxy
     volumes:
       - ${PHP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
@@ -23,7 +20,7 @@ services:
     restart: unless-stopped
     container_name: docker_test_project-nginx
 
-  ### PHP-FPM ##############################################
+### PHP-FPM ##############################################
   php-fpm:
     build:
       context: ./server/php-fpm
@@ -36,10 +33,11 @@ services:
     restart: unless-stopped
     container_name: docker_test_project-php-fpm
     depends_on:
+      - nginx
       - postgres_api
       - postgres_auth
 
-  ### PostgreSQL for API ###########################################
+### PostgreSQL for API ###########################################
   postgres_api:
     build:
       context: db/postgres_api
@@ -57,7 +55,7 @@ services:
     restart: unless-stopped
     container_name: docker_test_project-postgres_api
 
-  ### PostgreSQL for Auth ###########################################
+### PostgreSQL for Auth ###########################################
   postgres_auth:
     build:
       context: db/postgres_auth
