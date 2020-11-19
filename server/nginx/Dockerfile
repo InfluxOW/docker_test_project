@@ -31,6 +31,9 @@ ARG PHP_UPSTREAM_PORT=9000
 # Create 'messages' file used from 'logrotate'
 RUN touch /var/log/messages
 
+## Remove default nginx index page
+RUN rm -rf /usr/share/nginx/html/*
+
 # Copy 'logrotate' config file
 COPY logrotate/nginx /etc/logrotate.d/
 

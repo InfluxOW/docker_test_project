@@ -75,6 +75,7 @@ services:
     restart: unless-stopped
     container_name: docker_test_project-postgres_auth
 
+### Frontend ###########################################
   frontend:
     build:
       context: ./app/frontend
