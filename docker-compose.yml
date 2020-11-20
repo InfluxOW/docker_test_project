@@ -52,8 +52,6 @@ services:
     volumes:
       - ${DATA_PATH_HOST}/postgres_api:/var/lib/postgresql/data
       - ${POSTGRES_API_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
-    ports:
-      - "${POSTGRES_API_PORT}:5432"
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -72,8 +70,6 @@ services:
     volumes:
       - ${DATA_PATH_HOST}/postgres_auth:/var/lib/postgresql/data
       - ${POSTGRES_AUTH_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
-    ports:
-      - "${POSTGRES_AUTH_PORT}:5432"
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -96,8 +92,6 @@ services:
       - ./app/frontend/auth:/app/auth
       - /app/auth/node_modules
     container_name: ${APP_NAME}-frontend
-    ports:
-    - "8080:80"
     networks:
       - app
 
