@@ -18,10 +18,12 @@ services:
       - "${NGINX_HOST_HTTP_PORT}:80"
       - "${NGINX_HOST_HTTPS_PORT}:443"
     restart: unless-stopped
-    container_name: docker_test_project-nginx
+    container_name: ${APP_NAME}-nginx
     depends_on:
       - frontend
       - php-fpm
+    networks:
+      - app
 
 ### PHP-FPM ##############################################
   php-fpm:
@@ -34,10 +36,12 @@ services:
     volumes:
       - ${PHP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
     restart: unless-stopped
-    container_name: docker_test_project-php-fpm
+    container_name: ${APP_NAME}-php-fpm
     depends_on:
       - postgres_api
       - postgres_auth
+    networks:
+      - app
 
 ### PostgreSQL for API ###########################################
   postgres_api:
@@ -55,7 +59,9 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     restart: unless-stopped
-    container_name: docker_test_project-postgres_api
+    container_name: ${APP_NAME}-postgres_api
+    networks:
+      - app
 
 ### PostgreSQL for Auth ###########################################
   postgres_auth:
@@ -73,7 +79,9 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     restart: unless-stopped
-    container_name: docker_test_project-postgres_auth
+    container_name: ${APP_NAME}-postgres_auth
+    networks:
+      - app
 
 ### Frontend ###########################################
   frontend:
@@ -87,6 +95,12 @@ services:
     volumes:
       - ./app/frontend/auth:/app/auth
       - /app/auth/node_modules
-    container_name: docker_test_project-frontend
+    container_name: ${APP_NAME}-frontend
     ports:
     - "8080:80"
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
